@@ -24,14 +24,21 @@ const quotes = [
 ];
 
 
-function getQuoteForToday() {
+/*function getQuoteForToday() {
     const today = new Date();
     const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
     return quotes[dayOfYear % quotes.length];
+}*/
+
+
+function getQuoteForThisHour() {
+    const today = new Date();
+    const hourOfDay = today.getHours();
+    return quotes[hourOfDay % quotes.length];
 }
 
 
 document.addEventListener("DOMContentLoaded", function() {
     const quoteElement = document.querySelector('.coords'); // Replace `.quote-class-name` with the appropriate CSS selector for the quote element on your webpage
-    quoteElement.textContent = getQuoteForToday();
+    quoteElement.textContent = getQuoteForThisHour();
 });
