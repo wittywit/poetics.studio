@@ -300,3 +300,39 @@ body {
   overflow: hidden;
   display: flex;
 }
+
+
+/* Responsive Adjustments */
+
+@media (max-width: 992px) { 
+  .title-h1 {
+    font-size: 3em; /* Adjust title size for smaller screens */
+  }
+
+  .first-desc, .second-desc { 
+    font-size: 0.14rem; /* Smaller descriptions on tablets */
+  }
+} 
+
+@media (max-width: 600px) {
+  .title-h1 {
+    font-size: 2em; /* Even smaller title on phones */
+  }
+
+  .first-desc, .second-desc { 
+    font-size: 0.12rem;  
+  }
+
+  .hero .copyright, .hero .scroll-to {
+    font-size: 0.12rem;
+  }
+
+  .book-btn {
+    width: 1.4rem; 
+    height: 1.4rem;  /* Smaller button */
+  }
+
+  .book-btn .btn-text {
+    font-size: 0.14rem; 
+  }
+} 
