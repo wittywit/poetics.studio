@@ -1,112 +1,148 @@
-var target = 150;
-  var timer=5*60;
-  
-  $(function(){
-    $("#result").hide();
-     autosize($('.texteditor'));
-    //setTimeout(typeWriter, speed);
-    
-    $("#letsgo").click(function(){
-        console.log($("#ds_settings").val())
-          timer= $("#ds_settings").val()*60
-          target= $("#ds_settings").val() * 30
-          $("#startform").fadeOut()
-          setTimeout(writetimer, 1000);
-          $('#demo').focus();
-    })
-  })
+let editingIndex = -1;
 
-  function writetimer(){
-    if(timer==0){
-       $("#displayTimer").html('<button onclick="finish()" class="timerselect">Finish</button>')
-    }else{
-    timer=timer-1;
-      $("#displayTimer").html(timer + " seconds left")
-    setTimeout(writetimer, 1000);
+document.addEventListener('DOMContentLoaded', () => {
+    loadNotes();
+});
+
+document.getElementById('start-button').addEventListener('click', function() {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('writing-screen').style.display = 'flex';
+    document.getElementById('note').innerHTML = '';
+    document.getElementById('note-heading').value = '';
+    editingIndex = -1;
+});
+
+document.getElementById('image-upload').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.maxWidth = '100%';
+            img.style.marginTop = '10px';
+            document.getElementById('note').appendChild(img);
+        };
+        reader.readAsDataURL(file);
     }
-  }
+});
 
-
-
-  document.onkeydown = checkKey;
-
-  function checkKey(e) {
-
-    e = e || window.event;
-
+function saveNote() {
+    const heading = document.getElementById('note-heading').value;
+    const text = document.getElementById('note').innerHTML;
+    const notes = JSON.parse(localStorage.getItem('notes')) || [];
     
-    
-    if (e.keyCode == '38') {
-      // up arrow
-      e.preventDefault();
+    const note = { heading, text };
+
+    if (editingIndex === -1) {
+        notes.push(note);
+    } else {
+        notes[editingIndex] = note;
     }
-    else if (e.keyCode == '40') {
-      // down arrow
-      e.preventDefault();
-    }
-    else if (e.keyCode == '37') {
-      e.preventDefault();
-      // left arrow
-    }
-    else if (e.keyCode == '39') {
-      e.preventDefault();
-      // right arrow
-    }
-    
-    
-    getwordcount($("#demo"))
-  }
 
-
-      function getwordcount(el) {
-        var val = $.trim(el.val());
-        if (val === "") {
-          words = 0;
-        } else {
-          words = val.replace(/\s+/gi, ' ').split(' ').length;
-          chars = val.length;
-        }
-        per = (100 / target) * words
-        if (per > 100) { per = 100; }
-        per = parseInt(per);
-        per = per / 100;
-        if (per < 0.2) { per = 0.2 }
-
-        $("#displayCount").css('color', 'rgba(255,255,255,' + per + ')');
-        res = target - words
-        if (res < 1) { res = "All Done";
-               $("#displayCount").html('<button onclick="finish()" class="timerselect">Finish</button>')
-        } else { res = res + " words remain" 
-            $("#displayCount").text(res);
-        }
-
-    
-      }
-
-function finish(){
-  $(".resultholder").html(nl2br($("#demo").val()))  
-  $("#result").show();
-  $("#demo").val('');
+    localStorage.setItem('notes', JSON.stringify(notes));
+    loadNotes();
+    document.getElementById('writing-screen').style.display = 'none';
+    document.getElementById('start-screen').style.display = 'block';
 }
 
+function loadNotes() {
+    const notes = JSON.parse(localStorage.getItem('notes')) || [];
+    const notesList = document.getElementById('notes-list');
+    notesList.innerHTML = '';
+    notes.forEach((note, index) => {
+        const listItem = document.createElement('div');
+        listItem.className = 'note-item';
+        
+        const noteLink = document.createElement('a');
+        noteLink.textContent = note.heading ? note.heading.substring(0, 30) : `Note ${index + 1}`;
+        noteLink.href = '#';
+        noteLink.addEventListener('click', () => editNote(index));
+        
+        listItem.appendChild(noteLink);
+        notesList.appendChild(listItem);
+    });
+}
 
-  // for demo
+function editNote(index) {
+    const notes = JSON.parse(localStorage.getItem('notes'));
+    document.getElementById('note').innerHTML = notes[index].text;
+    document.getElementById('note-heading').value = notes[index].heading;
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('writing-screen').style.display = 'flex';
+    editingIndex = index;
+}
 
-  var i = 0;
-    var speed = 100;
-    var txt = "This is 'Distraction Free' writing\nThe WaveMaker distraction free mode focuses you on only the sentence you are writing. You can delete stuff, but you cannot go back and edit you keep going forwards. \nIn Fact - Don't even look at the screen\nJust Type.\nThe word count below will brighten as you reach your target goal of the number of words you set and the timer will alert you when the time has expired.";
+function downloadNoteAsTxt() {
+    const heading = document.getElementById('note-heading').value;
+    const text = document.getElementById('note').innerText;
+    const blob = new Blob([heading + '\n\n' + text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = heading ? heading.substring(0, 30) + '.txt' : 'note.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+}
 
-    function typeWriter() {
-      if (i < txt.length) {
-        document.getElementById("demo").innerHTML += txt.charAt(i);
-        autosize.update($(".texteditor"));
-        i++;
-        getwordcount($("#demo"))
-        setTimeout(typeWriter, speed);
-      }
-    }
+function downloadNoteAsPdf() {
+    const heading = document.getElementById('note-heading').value;
+    const noteContent = document.getElementById('note');
 
-      function nl2br(str, is_xhtml) {
-          var breakTag = (is_xhtml || typeof is_xhtml === 'undefined') ? '<br />' : '<br>';
-          return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Set heading style
+    doc.setFont('Poppins', 'bold');
+    doc.setFontSize(20);
+
+    // Calculate the width of the heading text and position it in the center
+    const headingWidth = doc.getTextWidth(heading);
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const headingX = (pageWidth - headingWidth) / 2;
+    let y = 20; // Vertical position on the PDF
+
+    // Add the centered heading
+    doc.text(heading, headingX, y);
+    y += 20; // Add space after the heading
+
+    // Reset the font to normal for the note content
+    doc.setFont('Poppins', 'normal');
+    doc.setFontSize(12); // Set font size for the note content
+
+    // Process each element in the note content
+    noteContent.childNodes.forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+            // Add text to the PDF
+            const text = node.textContent.trim();
+            if (text) {
+                const lines = doc.splitTextToSize(text, 180); // Wrap text within page margins
+                doc.text(lines, 10, y);
+                y += lines.length * 10; // Move down for the next content
+            }
+        } else if (node.nodeName === 'DIV' || node.nodeName === 'P' || node.nodeName === 'SPAN') {
+            // Handle DIV, P, or SPAN elements that contain text
+            const text = node.innerText.trim();
+            if (text) {
+                const lines = doc.splitTextToSize(text, 180); // Wrap text within page margins
+                doc.text(lines, 10, y);
+                y += lines.length * 10; // Move down for the next content
+            }
+        } else if (node.nodeName === 'IMG') {
+            // Add image to the PDF
+            const img = node;
+            const imgData = img.src;
+
+            // Calculate image size for the PDF
+            const imgWidth = 180; // Image width in PDF
+            const aspectRatio = img.naturalWidth / img.naturalHeight;
+            const imgHeight = imgWidth / aspectRatio;
+
+            // Add the image to the PDF
+            doc.addImage(imgData, 'JPEG', 10, y, imgWidth, imgHeight);
+            y += imgHeight + 10; // Move down for the next content
         }
+    });
+
+    doc.save(heading ? heading.substring(0, 30) + '.pdf' : 'note.pdf');
+}
