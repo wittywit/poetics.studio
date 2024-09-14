@@ -5923,7 +5923,7 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
     throw new TypeError('The "emitter" argument must be of type EventEmitter. Received type ' + typeof emitter);
   }
 }
-},{}],"lJ86":[function(require,module,exports) {
+},{}],"LMRJ":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5971,9 +5971,9 @@ var Cursor = exports.default = /*#__PURE__*/function (_EventEmitter) {
     _this.DOM.el.style.opacity = 0;
     _this.DOM.circleInner = _this.DOM.el.querySelector('.cursor__inner');
     _this.filterId = '#filter-1';
-    _this.DOM.feDisplacementMap = document.querySelector("".concat(_this.filterId, " > feDisplacementMap"));
+    _this.DOM.feTurbulence = document.querySelector("".concat(_this.filterId, " > feTurbulence"));
     _this.primitiveValues = {
-      scale: 0
+      turbulence: 0
     };
     _this.createTimeline();
     _this.bounds = _this.DOM.el.getBoundingClientRect();
@@ -5981,17 +5981,17 @@ var Cursor = exports.default = /*#__PURE__*/function (_EventEmitter) {
       tx: {
         previous: 0,
         current: 0,
-        amt: 0.14
+        amt: 0.2
       },
       ty: {
         previous: 0,
         current: 0,
-        amt: 0.14
+        amt: 0.2
       },
       radius: {
-        previous: 50,
-        current: 50,
-        amt: 0.14
+        previous: 60,
+        current: 60,
+        amt: 0.2
       }
     };
     _this.listen();
@@ -6038,34 +6038,29 @@ var Cursor = exports.default = /*#__PURE__*/function (_EventEmitter) {
           _this3.DOM.circleInner.style.filter = "url(".concat(_this3.filterId);
         },
         onUpdate: function onUpdate() {
-          _this3.DOM.feDisplacementMap.scale.baseVal = _this3.primitiveValues.scale;
+          _this3.DOM.feTurbulence.setAttribute('baseFrequency', _this3.primitiveValues.turbulence);
         },
         onComplete: function onComplete() {
           _this3.DOM.circleInner.style.filter = 'none';
         }
       }).to(this.primitiveValues, {
-        duration: 0.1,
-        ease: 'Expo.easeOut',
+        duration: 0.4,
         startAt: {
-          scale: 0
+          turbulence: 0.09
         },
-        scale: 60
-      }).to(this.primitiveValues, {
-        duration: 0.6,
-        ease: 'Power3.easeOut',
-        scale: 0
+        turbulence: 0
       });
     }
   }, {
     key: "enter",
     value: function enter() {
-      this.renderedStyles['radius'].current = 120;
+      this.renderedStyles['radius'].current = 100;
       this.tl.restart();
     }
   }, {
     key: "leave",
     value: function leave() {
-      this.renderedStyles['radius'].current = 50;
+      this.renderedStyles['radius'].current = 60;
       this.tl.progress(1).kill();
     }
   }, {
@@ -6081,10 +6076,10 @@ var Cursor = exports.default = /*#__PURE__*/function (_EventEmitter) {
     }
   }]);
 }(_events.EventEmitter);
-},{"gsap":"TpQl","./utils":"MgTz","events":"FRpO"}],"ReQy":[function(require,module,exports) {
+},{"gsap":"TpQl","./utils":"MgTz","events":"FRpO"}],"QvaY":[function(require,module,exports) {
 "use strict";
 
-var _cursor = _interopRequireDefault(require("./cursor3"));
+var _cursor = _interopRequireDefault(require("./cursor"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -6101,16 +6096,4 @@ _toConsumableArray(document.querySelectorAll('a')).forEach(function (el) {
     return cursor.emit('leave');
   });
 });
-},{"./cursor3":"lJ86"}]},{},["ReQy"], null)
-
-
-window.addEventListener('scroll', () => {
-    const images = document.querySelectorAll('.fade-in');
-    const scrollPosition = window.scrollY + window.innerHeight;
-
-    images.forEach(image => {
-        if (scrollPosition > image.offsetTop) {
-            image.classList.add('visible');
-        }
-    });
-});
+},{"./cursor":"LMRJ"}]},{},["QvaY"], null)
