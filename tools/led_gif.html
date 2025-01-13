@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LED Matrix Simulator with Multiple GIF Support</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(to bottom, #222, #111);
+      color: #fff;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .matrix-container {
+      display: grid;
+      gap: 2px;
+      margin: 20px 0;
+      grid-template-columns: repeat(16, 1fr);
+      grid-template-rows: repeat(16, 1fr);
+    }
+
+    .matrix-cell {
+      width: 20px;
+      height: 20px;
+      background-color: #444;
+      border-radius: 4px;
+      transition: background-color 0.1s ease;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .controls label {
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #ddd;
+    }
+
+    .controls input, .controls button {
+      padding: 8px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+
+    .controls input {
+      background-color: #333;
+      color: #fff;
+    }
+
+    /* Coral Button Styles */
+    .controls button {
+      background-color: #FF7F50; /* Coral shade */
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .controls button:hover {
+      background-color: #FF6347; /* Lighter coral shade */
+    }
+
+    .controls button:active {
+      background-color: #E5534B; /* Darker coral shade */
+    }
+
+    /* Footer styles */
+    footer {
+      position: fixed;
+      bottom: 10px;
+      font-size: 12px;
+      color: #888;
+      text-align: center;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>LED Matrix Simulator</h1>
+  <div class="controls">
+    <label>
+      Upload GIFs (16x16 px):
+      <input type="file" id="gifInput" accept=".gif" multiple />
+    </label>
+    <button id="playButton" disabled>Play All GIFs</button>
+    <button id="pauseButton" disabled>Pause</button>
+  </div>
+  <div id="matrix" class="matrix-container"></div>
+
+  <footer>
+    &copy; 2025 Studio Poetics. All rights reserved.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/gh/buzzfeed/libgif-js/libgif.js"></script>
+  <script>
+    /*
+
+echo " ░▒▓███████▓▒░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓██████▓▒░       ░▒▓███████▓▒░ ░▒▓██████▓▒░░▒▓████████▓▒░▒▓████████▓▒░▒▓█▓▒░░▒▓██████▓▒░ ░▒▓███████▓▒░ ";
+echo "░▒▓█▓▒░         ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░         ░▒▓█▓▒░   ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        ";
+echo "░▒▓█▓▒░         ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░         ░▒▓█▓▒░   ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░        ";
+echo " ░▒▓██████▓▒░   ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓██████▓▒░    ░▒▓█▓▒░   ░▒▓█▓▒░▒▓█▓▒░       ░▒▓██████▓▒░  ";
+echo "       ░▒▓█▓▒░  ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░         ░▒▓█▓▒░   ░▒▓█▓▒░▒▓█▓▒░             ░▒▓█▓▒░ ";
+echo "       ░▒▓█▓▒░  ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░         ░▒▓█▓▒░   ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░ ";
+echo "░▒▓███████▓▒░   ░▒▓█▓▒░    ░▒▓██████▓▒░░▒▓███████▓▒░░▒▓█▓▒░░▒▓██████▓▒░       ░▒▓█▓▒░       ░▒▓██████▓▒░░▒▓████████▓▒░  ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓██████▓▒░░▒▓███████▓▒░  ";
+echo "                                                                                                                                                                    ";
+echo "                                                                                                                                                                    ";
+
+                                    Studio Poetics
+     */
+
+
+
+
+
+
+
+    const matrixContainer = document.getElementById("matrix");
+    const playButton = document.getElementById("playButton");
+    const pauseButton = document.getElementById("pauseButton");
+    const gifInput = document.getElementById("gifInput");
+
+    const matrix = [];
+    let gifs = [];
+    let framesList = [];
+    let intervalId = null;
+    let currentGIF = 0;
+    let currentFrame = 0;
+
+    // Initialize the 16x16 matrix
+    function initializeMatrix() {
+      matrixContainer.innerHTML = "";
+      for (let y = 0; y < 16; y++) {
+        const row = [];
+        for (let x = 0; x < 16; x++) {
+          const cell = document.createElement("div");
+          cell.classList.add("matrix-cell");
+          matrixContainer.appendChild(cell);
+          row.push(cell);
+        }
+        matrix.push(row);
+      }
+    }
+
+    // Display a frame on the matrix
+    function displayFrame(frame) {
+      for (let y = 0; y < 16; y++) {
+        for (let x = 0; x < 16; x++) {
+          const index = (y * 16 + x) * 4; // RGBA values
+          const r = frame[index];
+          const g = frame[index + 1];
+          const b = frame[index + 2];
+          const cell = matrix[y][x];
+          cell.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+        }
+      }
+    }
+
+    // Play all GIFs in sequence
+    function playGIFs() {
+      if (framesList.length === 0) return;
+      playButton.disabled = true;
+      pauseButton.disabled = false;
+
+      intervalId = setInterval(() => {
+        const frames = framesList[currentGIF];
+        displayFrame(frames[currentFrame]);
+
+        currentFrame++;
+        if (currentFrame >= frames.length) {
+          currentFrame = 0;
+          currentGIF++;
+          if (currentGIF >= framesList.length) {
+            currentGIF = 0; // Loop back to the first GIF
+          }
+        }
+      }, 100); // Adjust frame delay as needed
+    }
+
+    // Pause GIF playback
+    function pauseGIFs() {
+      playButton.disabled = false;
+      pauseButton.disabled = true;
+      clearInterval(intervalId);
+    }
+
+    // Load and parse multiple GIFs
+    gifInput.addEventListener("change", (event) => {
+      const files = Array.from(event.target.files);
+      if (files.length === 0) return;
+
+      gifs = [];
+      framesList = [];
+      currentGIF = 0;
+      currentFrame = 0;
+
+      files.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function () {
+          const img = document.createElement("img");
+          img.src = reader.result;
+
+          const gif = new SuperGif({ gif: img });
+          gif.load(() => {
+            const frames = [];
+            for (let i = 0; i < gif.get_length(); i++) {
+              gif.move_to(i);
+              const frame = gif.get_canvas().getContext("2d").getImageData(0, 0, 16, 16).data;
+              frames.push(frame);
+            }
+            framesList.push(frames);
+
+            if (framesList.length === files.length) {
+              playButton.disabled = false; // Enable play button once all GIFs are loaded
+            }
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    // Initialize everything
+    initializeMatrix();
+    playButton.addEventListener("click", playGIFs);
+    pauseButton.addEventListener("click", pauseGIFs);
+  </script>
+</body>
+</html>
