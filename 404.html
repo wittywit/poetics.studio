@@ -25,23 +25,10 @@ const ctx = canvas.getContext('2d');
 
 // Game settings
 let score = 0;
-let gameOver = false;
 const gravity = 0.5;
 const jumpStrength = -10;
 let gameSpeed = 5;
 let speedIncrement = 0.01;
-
-// Responsive canvas setup
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    player.y = canvas.height - player.height - 100;
-    obstacles.forEach(obs => {
-        obs.y = canvas.height - obs.height - 100;
-    });
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
 
 // Assets
 const scoreIcon = new Image();
@@ -83,6 +70,19 @@ const obstacles = [];
 let groundOffset = 0;
 const frameWidth = 128, frameHeight = 128;
 let currentFrame = 0, frameCounter = 0, frameSpeed = 5;
+
+// Responsive canvas setup
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    player.y = canvas.height - player.height - 100;
+    obstacles.forEach(obs => {
+        obs.y = canvas.height - obs.height - 100;
+    });
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas(); // Initial call after player is initialized
 
 // Obstacle creation
 function createObstacle() {
