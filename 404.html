@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloom Runner</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #dff9fb, #c7ecee);
+        }
+        canvas {
+            display: block;
+            touch-action: none; /* Prevent touch scrolls */
+        }
+    </style>
+</head>
+<body>
+<canvas id="gameCanvas"></canvas>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// Game settings
+let score = 0;
+let gameOver = false;
+const gravity = 0.5;
+const jumpStrength = -10;
+let gameSpeed = 5;
+let speedIncrement = 0.01;
+
+// Responsive canvas setup
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    player.y = canvas.height - player.height - 100;
+    obstacles.forEach(obs => {
+        obs.y = canvas.height - obs.height - 100;
+    });
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Assets
+const scoreIcon = new Image();
+scoreIcon.src = 'score-icon.png';
+
+const runningSprite = new Image();
+runningSprite.src = 'running-sprite.png';
+
+const jumpingSprite = new Image();
+jumpingSprite.src = 'jumping-sprite.png';
+
+const groundTile = new Image();
+groundTile.src = 'ground-tile.png';
+
+const flowerSprite = new Image();
+flowerSprite.src = 'flower-sprite.png';
+
+const obstacleSprites = {
+    idle: new Image(),
+    collided: new Image(),
+    cleared: new Image(),
+};
+obstacleSprites.idle.src = 'obstacle-idle.png';
+obstacleSprites.collided.src = 'obstacle-collided.png';
+obstacleSprites.cleared.src = 'obstacle-cleared.png';
+
+// Player
+const player = {
+    x: 100,
+    y: canvas.height - 150,
+    width: 128,
+    height: 128,
+    dy: 0,
+    jumping: false,
+};
+
+// Game entities
+const obstacles = [];
+let groundOffset = 0;
+const frameWidth = 128, frameHeight = 128;
+let currentFrame = 0, frameCounter = 0, frameSpeed = 5;
+
+// Obstacle creation
+function createObstacle() {
+    const size = 64;
+    obstacles.push({
+        x: canvas.width + Math.random() * 200,
+        y: canvas.height - size - 100,
+        width: size,
+        height: size,
+        cleared: false,
+        collided: false,
+        frame: 0,
+        frameCounter: 0,
+    });
+}
+
+setInterval(createObstacle, 2000);
+
+// Input
+function jump() {
+    if (!player.jumping) {
+        player.dy = jumpStrength;
+        player.jumping = true;
+    }
+}
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') jump();
+});
+canvas.addEventListener('touchstart', jump);
+
+// Update logic
+function update(deltaTime) {
+    // Player physics
+    player.dy += gravity;
+    player.y += player.dy;
+
+    if (player.y >= canvas.height - player.height - 100) {
+        player.y = canvas.height - player.height - 100;
+        player.jumping = false;
+    }
+
+    // Move ground
+    groundOffset -= gameSpeed;
+    if (groundOffset <= -128) groundOffset = 0;
+
+    // Obstacle logic
+    obstacles.forEach((obs, index) => {
+        obs.x -= gameSpeed;
+
+        if (!obs.cleared && !obs.collided) {
+            const playerRight = player.x + player.width;
+            const playerBottom = player.y + player.height;
+            const obstacleRight = obs.x + obs.width;
+            const obstacleBottom = obs.y + obs.height;
+
+            // Collision Detection
+            if (
+                player.x < obstacleRight &&
+                playerRight > obs.x &&
+                playerBottom > obs.y &&
+                player.y < obstacleBottom
+            ) {
+                obs.collided = true;
+                score++; // Increment score on collision
+            } else if (player.x > obstacleRight) {
+                obs.cleared = true;
+                score++; // Increment score on successful evasion
+            }
+        }
+
+        if (obs.x + obs.width < 0) obstacles.splice(index, 1); // Remove off-screen obstacles
+    });
+
+    // Animate sprites
+    frameCounter++;
+    if (frameCounter >= frameSpeed) {
+        frameCounter = 0;
+        currentFrame = (currentFrame + 1) % 4;
+    }
+}
+
+// Draw logic
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Ground tiles
+    for (let x = groundOffset; x < canvas.width; x += 128) {
+        ctx.drawImage(groundTile, x, canvas.height - 100, 128, 100);
+    }
+
+    // Player
+    const currentSprite = player.jumping ? jumpingSprite : runningSprite;
+    ctx.drawImage(
+        currentSprite,
+        currentFrame * frameWidth,
+        0,
+        frameWidth,
+        frameHeight,
+        player.x,
+        player.y,
+        player.width,
+        player.height
+    );
+
+    // Obstacles
+    obstacles.forEach((obs) => {
+        const state = obs.collided
+            ? 'collided'
+            : obs.cleared
+            ? 'cleared'
+            : 'idle';
+
+        if (obs.cleared) {
+            ctx.drawImage(flowerSprite, obs.x, canvas.height - obs.height - 100, obs.width, obs.height); // Flower replaces obstacle
+        } else {
+            ctx.drawImage(
+                obstacleSprites[state],
+                0,
+                0,
+                64,
+                64,
+                obs.x,
+                canvas.height - obs.height - 100, // Ground-level positioning
+                obs.width,
+                obs.height
+            );
+        }
+    });
+
+    // Score
+    ctx.drawImage(scoreIcon, 20, 20, 32, 32);
+    ctx.fillStyle = '#2c3e50';
+    ctx.font = '24px Arial';
+    ctx.fillText(score, 60, 45); // Display score as number of collisions/evades
+}
+
+// Game loop
+let lastTime = 0;
+function gameLoop(timestamp) {
+    const deltaTime = timestamp - lastTime;
+    lastTime = timestamp;
+
+    update(deltaTime);
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop(0);
+</script>
+</body>
+</html>
