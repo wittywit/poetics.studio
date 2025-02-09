@@ -67,28 +67,32 @@ supportsCssVars() || alert("Please view this website in a modern browser that su
     </div>
 		
 <!--***************************FOOTER**************************************-->
-	<footer style="background-color: #F8F5F2; padding: 50px 20px; text-align: center; color: #4A4A4A; font-family: 'freight-display-pro', serif; font-size: 16px; font-weight: 400;">
-  <div style="max-width: 90vw; margin: auto; display: flex; justify-content: space-between; align-items: center; gap: 30px; width: 90%;">
+<footer style="background-color: #F8F5F2; padding: 50px 20px; text-align: center; color: #4A4A4A; font-family: 'freight-display-pro', serif; font-size: 16px; font-weight: 400;">
+  <div style="max-width: 90vw; margin: auto; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 30px; width: 90%;">
     
     <!-- First Column: p5.js Canvas -->
     <div style="flex: 1; text-align: center; min-width: 250px; padding: 20px;">
-      <div id="p5-container" style="display: flex; justify-content: center; align-items: center;"></div>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+      <div id="p5-container" style="display: flex; justify-content: center; align-items: center;">
+        <div id="canvas-wrapper" style="width: 200px; height: 200px; border-radius: 50%; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+        </div>
+      </div>
+
       <script>
         let angle = 0;
         let waves = [];
-        let sphereRadius = 120;
+        let sphereRadius = 90;
         let wireframeOpen = 0;
         let hovering = false;
 
         function setup() {
           let canvas = createCanvas(200, 200, WEBGL);
-          canvas.parent('p5-container');
+          canvas.parent('canvas-wrapper');
           initializeWaves();
         }
 
         function draw() {
-          background(248, 245, 242);
+          clear();
           rotateX(angle * 0.1);
           rotateY(angle * 0.1);
           updateWireframeState();
@@ -118,6 +122,7 @@ supportsCssVars() || alert("Please view this website in a modern browser that su
 
         function drawOuterSphere() {
           stroke(180, 180, 180, 150);
+          strokeWeight(0.5);
           noFill();
           sphere(sphereRadius + wireframeOpen);
         }
@@ -193,6 +198,33 @@ supportsCssVars() || alert("Please view this website in a modern browser that su
       </nav>
     </div>
   </div>
+
+  <!-- Responsive Styles -->
+  <style>
+    @media (max-width: 768px) {
+      footer div {
+        flex: 1 1 100%;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #canvas-wrapper {
+        width: 150px;
+        height: 150px;
+      }
+
+      p {
+        font-size: 16px;
+      }
+
+      nav {
+        flex-direction: column;
+        gap: 5px;
+      }
+    }
+  </style>
+
 </footer>
 
 
