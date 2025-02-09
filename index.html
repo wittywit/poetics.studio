@@ -67,30 +67,134 @@ supportsCssVars() || alert("Please view this website in a modern browser that su
     </div>
 		
 <!--***************************FOOTER**************************************-->
-	<footer style="background-color: #F8F5F2; padding: 40px 0; text-align: center; color: #4A4A4A; font-family: 'freight-display-pro', serif; font-size: 16px; font-weight: 400;">
-  <div style="max-width: 800px; margin: auto; padding: 0 20px;">
-    <div style="margin-bottom: 20px;">
-      <p style="margin: 0;">Studio Poetics explores the beauty in the ordinary through design, UX consultancy, and game development.</p>
+	<footer style="background-color: #F8F5F2; padding: 50px 20px; text-align: center; color: #4A4A4A; font-family: 'freight-display-pro', serif; font-size: 16px; font-weight: 400;">
+  <div style="max-width: 90vw; margin: auto; display: flex; justify-content: space-between; align-items: center; gap: 30px; width: 90%;">
+    
+    <!-- First Column: p5.js Canvas -->
+    <div style="flex: 1; text-align: center; min-width: 250px; padding: 20px;">
+      <div id="p5-container" style="display: flex; justify-content: center; align-items: center;"></div>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+      <script>
+        let angle = 0;
+        let waves = [];
+        let sphereRadius = 120;
+        let wireframeOpen = 0;
+        let hovering = false;
+
+        function setup() {
+          let canvas = createCanvas(200, 200, WEBGL);
+          canvas.parent('p5-container');
+          initializeWaves();
+        }
+
+        function draw() {
+          background(248, 245, 242);
+          rotateX(angle * 0.1);
+          rotateY(angle * 0.1);
+          updateWireframeState();
+          drawOuterSphere();
+          drawWireframeNodes();
+          drawFluidWaves();
+          drawCentralCore();
+          angle += 0.008;
+        }
+
+        function initializeWaves() {
+          for (let i = 0; i < 200; i++) {
+            let theta = random(TWO_PI);
+            let phi = random(PI);
+            let r = sphereRadius * 0.9 * random(0.8, 1);
+            waves.push({ theta, phi, r, phase: random(TWO_PI), velocity: random(0.005, 0.01) });
+          }
+        }
+
+        function updateWireframeState() {
+          let targetOpen = hovering ? 40 : 0;
+          wireframeOpen = lerp(wireframeOpen, targetOpen, 0.1);
+          if (!hovering && abs(wireframeOpen - targetOpen) < 0.1) {
+            wireframeOpen = 0;
+          }
+        }
+
+        function drawOuterSphere() {
+          stroke(180, 180, 180, 150);
+          noFill();
+          sphere(sphereRadius + wireframeOpen);
+        }
+
+        function drawWireframeNodes() {
+          for (let i = 0; i < 30; i++) {
+            let theta = (TWO_PI / 30) * i;
+            for (let j = 0; j < 15; j++) {
+              let phi = (PI / 15) * j;
+              let r = sphereRadius + (hovering ? sin(angle + theta * 2) * wireframeOpen * sin(phi) : 0);
+              let x = r * sin(phi) * cos(theta);
+              let y = r * sin(phi) * sin(theta);
+              let z = r * cos(phi);
+              push();
+              translate(x, y, z);
+              sphere(1);
+              pop();
+            }
+          }
+        }
+
+        function drawFluidWaves() {
+          stroke(200, 200, 200, 200);
+          for (let w of waves) {
+            let r = w.r + sin(angle * 0.5 + w.phase) * 5;
+            let x = r * sin(w.phi) * cos(w.theta);
+            let y = r * sin(w.phi) * sin(w.theta);
+            let z = r * cos(w.phi);
+            push();
+            translate(x, y, z);
+            fill(155, 161, 123, 220);
+            noStroke();
+            sphere(3);
+            pop();
+            w.phase += w.velocity;
+          }
+        }
+
+        function drawCentralCore() {
+          push();
+          fill(250, 140, 120, 200);
+          noStroke();
+          let coreSize = 8 + sin(angle * 0.7) * 1.5;
+          sphere(coreSize);
+          pop();
+        }
+
+        function mouseMoved() {
+          let dx = mouseX - width / 2;
+          let dy = mouseY - height / 2;
+          let distance = sqrt(dx * dx + dy * dy);
+          hovering = distance <= sphereRadius;
+        }
+
+        function mouseExited() {
+          hovering = false;
+        }
+      </script>
     </div>
 
-    <div style="margin-bottom: 20px;">
-      <a href="#" style="color: #4A4A4A; text-decoration: none; margin: 0 10px;">Home</a>
-      <a href="#" style="color: #4A4A4A; text-decoration: none; margin: 0 10px;">Games</a>
-      <a href="#" style="color: #4A4A4A; text-decoration: none; margin: 0 10px;">Research</a>
-      <a href="#" style="color: #4A4A4A; text-decoration: none; margin: 0 10px;">Contact</a>
+    <!-- Second Column: Text Content -->
+    <div style="flex: 1; text-align: center; min-width: 300px; padding: 20px;">
+      <p style="margin-bottom: 15px; font-size: 18px; line-height: 1.6;">Studio Poetics explores the beauty in the ordinary through design, UX consultancy, and game development.</p>
     </div>
 
-    <div style="margin-bottom: 20px;">
-      <a href="#" style="color: #4A4A4A; text-decoration: none; margin: 0 10px;"><i class="fab fa-linkedin-in"></i></a>
-      <a href="#" style="color: #4A4A4A; text-decoration: none; margin: 0 10px;"><i class="fab fa-twitter"></i></a>
-      <a href="#" style="color: #4A4A4A; text-decoration: none; margin: 0 10px;"><i class="fab fa-instagram"></i></a>
-    </div>
-
-    <div style="border-top: 1px solid #ddd; padding-top: 20px;">
-      <p style="margin: 0;">&copy; 2024 Studio Poetics. <a href="#" style="color: #4A4A4A; text-decoration: none;">Privacy Policy</a></p>
+    <!-- Third Column: Navigation Links -->
+    <div style="flex: 1; text-align: center; min-width: 200px; padding: 20px;">
+      <nav style="display: flex; flex-direction: column; gap: 10px;">
+        <a href="#" style="color: #4A4A4A; text-decoration: none; font-weight: 500;">Home</a>
+        <a href="#" style="color: #4A4A4A; text-decoration: none; font-weight: 500;">Games</a>
+        <a href="#" style="color: #4A4A4A; text-decoration: none; font-weight: 500;">Research</a>
+        <a href="#" style="color: #4A4A4A; text-decoration: none; font-weight: 500;">Contact</a>
+      </nav>
     </div>
   </div>
 </footer>
+
 
 
 <!--*************************** FOOTER * END **************************************-->
