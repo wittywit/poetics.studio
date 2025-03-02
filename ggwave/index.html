@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GGWave Audio Messenger</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #38b000;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--dark);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .logo i {
+            font-size: 3rem;
+            color: var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        .description {
+            text-align: center;
+            color: var(--gray);
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .chat-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message-box {
+            position: relative;
+        }
+
+        .message-box label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            resize: none;
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: var(--light);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+
+        textarea:disabled {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+        }
+
+        .btn-secondary {
+            background-color: var(--gray);
+        }
+
+        .btn i {
+            font-size: 1.1rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            background-color: var(--light);
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .status.listening {
+            background-color: rgba(56, 176, 0, 0.1);
+            color: var(--success);
+        }
+
+        #waveform-container {
+            width: 100%;
+            height: 60px;
+            margin-top: 20px;
+            position: relative;
+            background-color: rgba(67, 97, 238, 0.1);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .btn {
+                padding: 10px 15px;
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .protocol-selector {
+            margin-bottom: 20px;
+        }
+
+        .protocol-selector label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .protocol-selector select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            background-color: var(--light);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .protocol-selector select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .loading-indicator span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-indicator span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .loading-indicator span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GGWave Audio Messenger</h1>
+        <div class="logo">
+            <i class="fas fa-broadcast-tower"></i>
+        </div>
+        <p class="description">Send and receive messages through sound waves. No internet connection required for transmission.</p>
+        
+        <div id="initialization-status" class="status">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Initializing audio system...</span>
+        </div>
+
+        <div class="chat-area">
+            <div class="message-box">
+                <label for="txData">Message to send:</label>
+                <textarea id="txData" rows="4" placeholder="Type your message here..."></textarea>
+            </div>
+            
+            <div class="protocol-selector">
+                <label for="protocol">Transmission Protocol:</label>
+                <select id="protocol">
+                    <option value="3">Audible Normal (Reliable)</option>
+                    <option value="2" selected>Audible Fast (Recommended)</option>
+                    <option value="1">Ultrasound Normal (Quiet)</option>
+                    <option value="0">Ultrasound Fast (Fastest)</option>
+                </select>
+            </div>
+
+            <button id="sendBtn" class="btn" disabled>
+                <i class="fas fa-paper-plane"></i>
+                Send Message
+            </button>
+            
+            <div class="message-box">
+                <label for="rxData">Received messages:</label>
+                <textarea id="rxData" rows="4" disabled placeholder="Messages received will appear here..."></textarea>
+            </div>
+            
+            <div class="buttons">
+                <button id="captureStart" class="btn btn-success" disabled>
+                    <i class="fas fa-microphone"></i>
+                    Start Listening
+                </button>
+                <button id="captureStop" class="btn btn-secondary" hidden>
+                    <i class="fas fa-microphone-slash"></i>
+                    Stop Listening
+                </button>
+            </div>
+        </div>
+        
+        <div id="waveform-container">
+            <canvas id="waveform"></canvas>
+        </div>
+    </div>
+    
+    <footer>
+        Powered by <a href="https://github.com/ggerganov/ggwave" target="_blank">ggwave</a> | 
+        Developed by <a href="https://github.com/ggerganov" target="_blank">Georgi Gerganov</a>
+    </footer>
+
+    <script type="text/javascript" src="ggwave.js"></script>
+    <script type='text/javascript'>
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        window.OfflineAudioContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+
+        var context = null;
+        var recorder = null;
+        var mediaStream = null;
+        var analyser = null;
+        var animationFrame = null;
+
+        // the ggwave module instance
+        var ggwave = null;
+        var parameters = null;
+        var instance = null;
+
+        // UI elements
+        var txData = document.getElementById("txData");
+        var rxData = document.getElementById("rxData");
+        var captureStart = document.getElementById("captureStart");
+        var captureStop = document.getElementById("captureStop");
+        var sendBtn = document.getElementById("sendBtn");
+        var protocolSelect = document.getElementById("protocol");
+        var initStatus = document.getElementById("initialization-status");
+        var waveformCanvas = document.getElementById("waveform");
+        var waveformCtx = waveformCanvas.getContext("2d");
+
+        // instantiate the ggwave instance
+        // ggwave_factory comes from the ggwave.js module
+        ggwave_factory().then(function(obj) {
+            ggwave = obj;
+            
+            // Enable buttons once ggwave is loaded
+            sendBtn.disabled = false;
+            captureStart.disabled = false;
+            
+            initStatus.innerHTML = '<i class="fas fa-check-circle" style="color: var(--success);"></i><span>Audio system ready</span>';
+            setTimeout(() => {
+                initStatus.style.display = 'none';
+            }, 2000);
+        }).catch(function(error) {
+            console.error("Failed to load ggwave:", error);
+            initStatus.innerHTML = '<i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i><span>Failed to initialize audio system</span>';
+        });
+
+        // helper function
+        function convertTypedArray(src, type) {
+            var buffer = new ArrayBuffer(src.byteLength);
+            var baseView = new src.constructor(buffer).set(src);
+            return new type(buffer);
+        }
+
+        // initialize audio context and ggwave
+        function init() {
+            if (!context) {
+                try {
+                    context = new AudioContext({sampleRate: 48000});
+                    
+                    // Setup analyzer for visualizations
+                    analyser = context.createAnalyser();
+                    analyser.fftSize = 2048;
+                    
+                    parameters = ggwave.getDefaultParameters();
+                    parameters.sampleRateInp = context.sampleRate;
+                    parameters.sampleRateOut = context.sampleRate;
+                    instance = ggwave.init(parameters);
+                    
+                    // Start drawing the waveform
+                    drawWaveform();
+                    
+                    return true;
+                } catch (e) {
+                    console.error("Failed to initialize audio context:", e);
+                    initStatus.innerHTML = '<i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i><span>Failed to initialize audio: ' + e.message + '</span>';
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Waveform visualization
+        function drawWaveform() {
+            const width = waveformCanvas.width = waveformCanvas.offsetWidth;
+            const height = waveformCanvas.height = waveformCanvas.offsetHeight;
+            
+            if (!analyser) {
+                // If analyser is not available, just draw a placeholder
+                waveformCtx.fillStyle = 'rgba(67, 97, 238, 0.2)';
+                waveformCtx.fillRect(0, 0, width, height);
+                
+                animationFrame = requestAnimationFrame(drawWaveform);
+                return;
+            }
+            
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            analyser.getByteTimeDomainData(dataArray);
+            
+            waveformCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            waveformCtx.fillRect(0, 0, width, height);
+            
+            waveformCtx.lineWidth = 2;
+            waveformCtx.strokeStyle = 'rgba(67, 97, 238, 0.8)';
+            waveformCtx.beginPath();
+            
+            const sliceWidth = width * 1.0 / bufferLength;
+            let x = 0;
+            
+            for (let i = 0; i < bufferLength; i++) {
+                const v = dataArray[i] / 128.0;
+                const y = v * height / 2;
+                
+                if (i === 0) {
+                    waveformCtx.moveTo(x, y);
+                } else {
+                    waveformCtx.lineTo(x, y);
+                }
+                
+                x += sliceWidth;
+            }
+            
+            waveformCtx.lineTo(width, height / 2);
+            waveformCtx.stroke();
+            
+            animationFrame = requestAnimationFrame(drawWaveform);
+        }
+
+        // Send message function
+        function onSend() {
+            if (!init()) return;
+
+            // Disable send button during transmission
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+            // pause audio capture during transmission
+            if (!captureStop.hidden) {
+                captureStop.click();
+            }
+
+            // get selected protocol
+            const protocolId = parseInt(protocolSelect.value);
+
+            // generate audio waveform
+            var waveform = ggwave.encode(instance, txData.value, protocolId, 10);
+
+            // play audio
+            var buf = convertTypedArray(waveform, Float32Array);
+            var buffer = context.createBuffer(1, buf.length, context.sampleRate);
+            buffer.getChannelData(0).set(buf);
+            var source = context.createBufferSource();
+            source.buffer = buffer;
+            source.connect(context.destination);
+            source.connect(analyser);
+            
+            // Re-enable the button when playback ends
+            source.onended = function() {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+                
+                // Re-enable listen mode if it was active
+                if (captureStart.hidden) {
+                    captureStart.click();
+                }
+            };
+            
+            source.start(0);
+        }
+
+        // Start listening for messages
+        captureStart.addEventListener("click", function () {
+            if (!init()) return;
+
+            let constraints = {
+                audio: {
+                    echoCancellation: false,
+                    autoGainControl: false,
+                    noiseSuppression: false
+                }
+            };
+
+            navigator.mediaDevices.getUserMedia(constraints).then(function (e) {
+                mediaStream = context.createMediaStreamSource(e);
+
+                var bufferSize = 1024;
+                var numberOfInputChannels = 1;
+                var numberOfOutputChannels = 1;
+
+                if (context.createScriptProcessor) {
+                    recorder = context.createScriptProcessor(
+                            bufferSize,
+                            numberOfInputChannels,
+                            numberOfOutputChannels);
+                } else {
+                    recorder = context.createJavaScriptNode(
+                            bufferSize,
+                            numberOfInputChannels,
+                            numberOfOutputChannels);
+                }
+
+                recorder.onaudioprocess = function (e) {
+                    var source = e.inputBuffer;
+                    var res = ggwave.decode(instance, convertTypedArray(new Float32Array(source.getChannelData(0)), Int8Array));
+
+                    if (res && res.length > 0) {
+                        res = new TextDecoder("utf-8").decode(res);
+                        
+                        // Add timestamp to received message
+                        const now = new Date();
+                        const timestamp = now.toLocaleTimeString();
+                        
+                        // Append new message to received messages
+                        rxData.value = `[${timestamp}] ${res}\n` + rxData.value;
+                        
+                        // Visual feedback
+                        rxData.style.borderColor = "#38b000";
+                        setTimeout(() => {
+                            rxData.style.borderColor = "#e0e0e0";
+                        }, 1000);
+                    }
+                }
+
+                mediaStream.connect(recorder);
+                recorder.connect(context.destination);
+                
+                // Connect to analyzer for visualization
+                mediaStream.connect(analyser);
+                
+                rxData.placeholder = "Listening for messages...";
+                document.querySelector('.status').className = 'status listening';
+                document.querySelector('.status').innerHTML = '<i class="fas fa-microphone"></i><span>Listening for messages...</span>';
+                document.querySelector('.status').style.display = 'flex';
+                
+                captureStart.hidden = true;
+                captureStop.hidden = false;
+            }).catch(function (e) {
+                console.error(e);
+                let errorMessage = "Failed to access microphone";
+                if (e.name === "NotAllowedError") {
+                    errorMessage = "Microphone access denied. Please grant permission.";
+                }
+                initStatus.innerHTML = '<i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i><span>' + errorMessage + '</span>';
+                initStatus.style.display = 'flex';
+            });
+        });
+
+        // Stop listening for messages
+        captureStop.addEventListener("click", function () {
+            if (recorder) {
+                recorder.disconnect(context.destination);
+                mediaStream.disconnect(recorder);
+                mediaStream.disconnect(analyser);
+                recorder = null;
+            }
+
+            rxData.placeholder = "Messages received will appear here...";
+            document.querySelector('.status').className = 'status';
+            document.querySelector('.status').innerHTML = '<i class="fas fa-info-circle"></i><span>Press "Start Listening" to detect messages</span>';
+            
+            captureStart.hidden = false;
+            captureStop.hidden = true;
+        });
+
+        // Connect the send button to the send function
+        sendBtn.addEventListener("click", onSend);
+
+        // Fix waveform canvas size on window resize
+        window.addEventListener('resize', function() {
+            if (waveformCanvas) {
+                waveformCanvas.width = waveformCanvas.offsetWidth;
+                waveformCanvas.height = waveformCanvas.offsetHeight;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GGWave Chat Messenger</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #38b000;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --sent-bg: #dcf8c6;
+            --received-bg: #f0f0f0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            height: 85vh;
+            max-height: 700px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .chat-header h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+            flex: 1;
+        }
+
+        .header-icon {
+            font-size: 1.5rem;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .chat-status {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--success);
+        }
+
+        .status-indicator.inactive {
+            background-color: var(--gray);
+        }
+
+        .options-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #e5ddd5;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            position: relative;
+            word-wrap: break-word;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .message-sent {
+            align-self: flex-end;
+            background-color: var(--sent-bg);
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-received {
+            align-self: flex-start;
+            background-color: var(--received-bg);
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--gray);
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .chat-input {
+            padding: 15px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .input-field {
+            flex: 1;
+            position: relative;
+        }
+
+        .message-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            font-size: 0.95rem;
+            outline: none;
+            resize: none;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .message-input:focus {
+            border-color: var(--primary);
+        }
+
+        .send-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .send-btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .send-btn:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+        }
+
+        .options-menu {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            display: none;
+        }
+
+        .options-menu.active {
+            display: block;
+        }
+
+        .options-menu ul {
+            list-style: none;
+        }
+
+        .options-menu li {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .options-menu li:hover {
+            background-color: var(--light-gray);
+        }
+
+        .separator {
+            height: 1px;
+            background-color: var(--light-gray);
+            margin: 5px 0;
+        }
+
+        .protocol-selector {
+            padding: 10px 15px;
+            background-color: white;
+            border-top: 1px solid var(--light-gray);
+            display: none;
+        }
+
+        .protocol-selector.active {
+            display: block;
+        }
+
+        .protocol-selector select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+        }
+
+        .protocol-selector select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        #waveform-container {
+            width: 100%;
+            height: 40px;
+            background-color: rgba(67, 97, 238, 0.05);
+            border-top: 1px solid var(--light-gray);
+            overflow: hidden;
+            display: none;
+        }
+
+        #waveform-container.active {
+            display: block;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .system-message {
+            align-self: center;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: var(--dark);
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 5px 0;
+        }
+
+        .sending-indicator {
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .sending-indicator span {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: var(--dark);
+            animation: typing 1s infinite;
+            margin: 0 2px;
+        }
+
+        .sending-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .sending-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-4px);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .chat-container {
+                height: 90vh;
+                max-height: none;
+            }
+
+            .chat-header h1 {
+                font-size: 1.1rem;
+            }
+
+            .message {
+                max-width: 85%;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Initialization overlay */
+        .initialization-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .initialization-dialog {
+            background-color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            max-width: 90%;
+            width: 350px;
+        }
+
+        .initialization-dialog h2 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .initialization-dialog p {
+            margin-bottom: 20px;
+            color: var(--gray);
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Initialization Overlay -->
+    <div class="initialization-overlay" id="initOverlay">
+        <div class="initialization-dialog">
+            <div class="spinner"></div>
+            <h2>Initializing</h2>
+            <p id="initStatusText">Setting up audio system...</p>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <i class="fas fa-broadcast-tower header-icon"></i>
+            <h1>GGWave Chat</h1>
+            <div class="chat-status">
+                <span class="status-indicator inactive" id="statusIndicator"></span>
+                <span id="statusText">Initializing...</span>
+            </div>
+            <button class="options-btn" id="optionsBtn">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+        </div>
+        
+        <div class="options-menu" id="optionsMenu">
+            <ul>
+                <li id="toggleListeningBtn">
+                    <i class="fas fa-microphone"></i>
+                    <span>Start Listening</span>
+                </li>
+                <li id="showProtocolBtn">
+                    <i class="fas fa-cog"></i>
+                    <span>Transmission Settings</span>
+                </li>
+                <li id="toggleWaveformBtn">
+                    <i class="fas fa-wave-square"></i>
+                    <span>Show Waveform</span>
+                </li>
+                <li class="separator"></li>
+                <li id="clearMessagesBtn">
+                    <i class="fas fa-trash"></i>
+                    <span>Clear Messages</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="system-message">
+                Welcome to GGWave Chat! Send messages through sound waves.
+            </div>
+        </div>
+        
+        <div class="protocol-selector" id="protocolSelector">
+            <select id="protocol">
+                <option value="3">Audible Normal (Reliable)</option>
+                <option value="2" selected>Audible Fast (Recommended)</option>
+                <option value="1">Ultrasound Normal (Quiet)</option>
+                <option value="0">Ultrasound Fast (Fastest)</option>
+            </select>
+        </div>
+        
+        <div id="waveform-container">
+            <canvas id="waveform"></canvas>
+        </div>
+        
+        <div class="chat-input">
+            <div class="input-field">
+                <textarea 
+                    class="message-input" 
+                    id="messageInput" 
+                    placeholder="Type a message..." 
+                    rows="1"
+                    disabled></textarea>
+            </div>
+            <button class="send-btn" id="sendBtn" disabled>
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="ggwave.js"></script>
+    <script type='text/javascript'>
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        window.OfflineAudioContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+
+        // Audio objects
+        var context = null;
+        var recorder = null;
+        var mediaStream = null;
+        var analyser = null;
+        var animationFrame = null;
+
+        // ggwave objects
+        var ggwave = null;
+        var parameters = null;
+        var instance = null;
+
+        // UI elements
+        var messageInput = document.getElementById("messageInput");
+        var sendBtn = document.getElementById("sendBtn");
+        var chatMessages = document.getElementById("chatMessages");
+        var protocolSelect = document.getElementById("protocol");
+        var initOverlay = document.getElementById("initOverlay");
+        var initStatusText = document.getElementById("initStatusText");
+        var statusIndicator = document.getElementById("statusIndicator");
+        var statusText = document.getElementById("statusText");
+        var optionsBtn = document.getElementById("optionsBtn");
+        var optionsMenu = document.getElementById("optionsMenu");
+        var toggleListeningBtn = document.getElementById("toggleListeningBtn");
+        var showProtocolBtn = document.getElementById("showProtocolBtn");
+        var protocolSelector = document.getElementById("protocolSelector");
+        var waveformContainer = document.getElementById("waveform-container");
+        var toggleWaveformBtn = document.getElementById("toggleWaveformBtn");
+        var clearMessagesBtn = document.getElementById("clearMessagesBtn");
+        var waveformCanvas = document.getElementById("waveform");
+        var waveformCtx = waveformCanvas.getContext("2d");
+
+        // State variables
+        var isListening = false;
+        
+        // Initialize ggwave
+        ggwave_factory().then(function(obj) {
+            ggwave = obj;
+            initStatusText.textContent = "Audio system initialized!";
+            
+            // Enable the UI
+            messageInput.disabled = false;
+            sendBtn.disabled = false;
+            
+            // Initialize audio and start listening automatically
+            initAudio().then(() => {
+                initOverlay.style.display = 'none';
+                startListening();
+            }).catch(error => {
+                initStatusText.textContent = "Error: " + error.message;
+                console.error("Error initializing audio:", error);
+            });
+        }).catch(function(error) {
+            console.error("Failed to load ggwave:", error);
+            initStatusText.textContent = "Failed to initialize. Please try reloading.";
+        });
+
+        // Helper function for converting array types
+        function convertTypedArray(src, type) {
+            var buffer = new ArrayBuffer(src.byteLength);
+            var baseView = new src.constructor(buffer).set(src);
+            return new type(buffer);
+        }
+
+        // Initialize audio context and ggwave
+        async function initAudio() {
+            if (!context) {
+                try {
+                    context = new AudioContext({sampleRate: 48000});
+                    
+                    // Setup analyzer for visualizations
+                    analyser = context.createAnalyser();
+                    analyser.fftSize = 2048;
+                    
+                    parameters = ggwave.getDefaultParameters();
+                    parameters.sampleRateInp = context.sampleRate;
+                    parameters.sampleRateOut = context.sampleRate;
+                    instance = ggwave.init(parameters);
+                    
+                    // Start drawing the waveform if visible
+                    if (waveformContainer.classList.contains('active')) {
+                        drawWaveform();
+                    }
+                    
+                    return true;
+                } catch (e) {
+                    console.error("Failed to initialize audio context:", e);
+                    throw e;
+                }
+            }
+            return true;
+        }
+
+        // Waveform visualization
+        function drawWaveform() {
+            const width = waveformCanvas.width = waveformCanvas.offsetWidth;
+            const height = waveformCanvas.height = waveformCanvas.offsetHeight;
+            
+            if (!analyser) {
+                // If analyser is not available, just draw a placeholder
+                waveformCtx.fillStyle = 'rgba(67, 97, 238, 0.2)';
+                waveformCtx.fillRect(0, 0, width, height);
+                
+                animationFrame = requestAnimationFrame(drawWaveform);
+                return;
+            }
+            
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            analyser.getByteTimeDomainData(dataArray);
+            
+            waveformCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            waveformCtx.fillRect(0, 0, width, height);
+            
+            waveformCtx.lineWidth = 2;
+            waveformCtx.strokeStyle = 'rgba(67, 97, 238, 0.8)';
+            waveformCtx.beginPath();
+            
+            const sliceWidth = width * 1.0 / bufferLength;
+            let x = 0;
+            
+            for (let i = 0; i < bufferLength; i++) {
+                const v = dataArray[i] / 128.0;
+                const y = v * height / 2;
+                
+                if (i === 0) {
+                    waveformCtx.moveTo(x, y);
+                } else {
+                    waveformCtx.lineTo(x, y);
+                }
+                
+                x += sliceWidth;
+            }
+            
+            waveformCtx.lineTo(width, height / 2);
+            waveformCtx.stroke();
+            
+            animationFrame = requestAnimationFrame(drawWaveform);
+        }
+
+        // Add a message to the chat
+        function addMessage(text, isSent, isSystem = false) {
+            const now = new Date();
+            const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            if (isSystem) {
+                const systemMessageElement = document.createElement('div');
+                systemMessageElement.className = 'system-message';
+                systemMessageElement.textContent = text;
+                chatMessages.appendChild(systemMessageElement);
+            } else {
+                const messageElement = document.createElement('div');
+                messageElement.className = isSent ? 'message message-sent' : 'message message-received';
+                
+                messageElement.innerHTML = `
+                    ${text}
+                    <div class="message-time">${time}</div>
+                `;
+                
+                chatMessages.appendChild(messageElement);
+            }
+            
+            // Scroll to the bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Send a message
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text) return;
+            
+            // Add the message to the chat
+            addMessage(text, true);
+            
+            // Clear the input field
+            messageInput.value = '';
+            
+            // Disable sending while transmitting
+            sendBtn.disabled = true;
+            
+            // Temporarily pause listening
+            if (isListening) {
+                stopListening(false);
+            }
+            
+            try {
+                // Add sending indicator
+                const sendingIndicator = document.createElement('div');
+                sendingIndicator.className = 'system-message';
+                sendingIndicator.innerHTML = 'Sending message<div class="sending-indicator"><span></span><span></span><span></span></div>';
+                chatMessages.appendChild(sendingIndicator);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                await initAudio();
+                
+                // Get selected protocol
+                const protocolId = parseInt(protocolSelect.value);
+                
+                // Generate audio waveform
+                var waveform = ggwave.encode(instance, text, protocolId, 10);
+                
+                // Play audio
+                var buf = convertTypedArray(waveform, Float32Array);
+                var buffer = context.createBuffer(1, buf.length, context.sampleRate);
+                buffer.getChannelData(0).set(buf);
+                var source = context.createBufferSource();
+                source.buffer = buffer;
+                source.connect(context.destination);
+                source.connect(analyser);
+                
+                // When transmission is done
+                source.onended = function() {
+                    sendBtn.disabled = false;
+                    
+                    // Remove sending indicator
+                    if (sendingIndicator && sendingIndicator.parentNode) {
+                        sendingIndicator.parentNode.removeChild(sendingIndicator);
+                    }
+                    
+                    // Resume listening
+                    if (!isListening) {
+                        startListening();
+                    }
+                };
+                
+                source.start(0);
+                
+            } catch (error) {
+                console.error("Error sending message:", error);
+                addMessage("Failed to send message. Please try again.", false, true);
+                sendBtn.disabled = false;
+                
+                // Resume listening
+                if (!isListening) {
+                    startListening();
+                }
+            }
+        }
+
+        // Start listening for messages
+        function startListening() {
+            if (isListening) return;
+            
+            initAudio().then(() => {
+                let constraints = {
+                    audio: {
+                        echoCancellation: false,
+                        autoGainControl: false,
+                        noiseSuppression: false
+                    }
+                };
+    
+                navigator.mediaDevices.getUserMedia(constraints).then(function (e) {
+                    mediaStream = context.createMediaStreamSource(e);
+    
+                    var bufferSize = 1024;
+                    var numberOfInputChannels = 1;
+                    var numberOfOutputChannels = 1;
+    
+                    if (context.createScriptProcessor) {
+                        recorder = context.createScriptProcessor(
+                                bufferSize,
+                                numberOfInputChannels,
+                                numberOfOutputChannels);
+                    } else {
+                        recorder = context.createJavaScriptNode(
+                                bufferSize,
+                                numberOfInputChannels,
+                                numberOfOutputChannels);
+                    }
+    
+                    recorder.onaudioprocess = function (e) {
+                        var source = e.inputBuffer;
+                        var res = ggwave.decode(instance, convertTypedArray(new Float32Array(source.getChannelData(0)), Int8Array));
+    
+                        if (res && res.length > 0) {
+                            res = new TextDecoder("utf-8").decode(res);
+                            addMessage(res, false);
+                        }
+                    };
+    
+                    mediaStream.connect(recorder);
+                    recorder.connect(context.destination);
+                    
+                    // Connect to analyzer for visualization
+                    mediaStream.connect(analyser);
+                    
+                    isListening = true;
+                    updateListeningStatus();
+                    
+                    // Start the waveform if visible
+                    if (waveformContainer.classList.contains('active') && !animationFrame) {
+                        drawWaveform();
+                    }
+                    
+                }).catch(function (e) {
+                    console.error(e);
+                    let errorMessage = "Failed to access microphone";
+                    if (e.name === "NotAllowedError") {
+                        errorMessage = "Microphone access denied. Please grant permission.";
+                    }
+                    addMessage(errorMessage, false, true);
+                    isListening = false;
+                    updateListeningStatus();
+                });
+            });
+        }
+
+        // Stop listening for messages
+        function stopListening(updateUI = true) {
+            if (!isListening) return;
+            
+            if (recorder) {
+                recorder.disconnect(context.destination);
+                mediaStream.disconnect(recorder);
+                mediaStream.disconnect(analyser);
+                recorder = null;
+            }
+            
+            isListening = false;
+            if (updateUI) {
+                updateListeningStatus();
+                addMessage("Listening stopped", false, true);
+            }
+        }
+
+        // Update the listening status display
+        function updateListeningStatus() {
+            if (isListening) {
+                statusIndicator.classList.remove('inactive');
+                statusText.textContent = "Listening";
+                toggleListeningBtn.innerHTML = '<i class="fas fa-microphone-slash"></i><span>Stop Listening</span>';
+            } else {
+                statusIndicator.classList.add('inactive');
+                statusText.textContent = "Not listening";
+                toggleListeningBtn.innerHTML = '<i class="fas fa-microphone"></i><span>Start Listening</span>';
+            }
+        }
+
+        // Toggle listening state
+        function toggleListening() {
+            if (isListening) {
+                stopListening();
+            } else {
+                startListening();
+            }
+            optionsMenu.classList.remove('active');
+        }
+
+        // Toggle protocol selector visibility
+        function toggleProtocolSelector() {
+            protocolSelector.classList.toggle('active');
+            optionsMenu.classList.remove('active');
+        }
+
+        // Toggle waveform visibility
+        function toggleWaveform() {
+            waveformContainer.classList.toggle('active');
+            
+            if (waveformContainer.classList.contains('active') && isListening && !animationFrame) {
+                drawWaveform();
+            } else if (!waveformContainer.classList.contains('active') && animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+            
+            optionsMenu.classList.remove('active');
+        }
+
+        // Clear all messages
+        function clearMessages() {
+            while (chatMessages.lastChild) {
+                chatMessages.removeChild(chatMessages.lastChild);
+            }
+            
+            addMessage("Welcome to GGWave Chat! Send messages through sound waves.", false, true);
+            optionsMenu.classList.remove('active');
+        }
+
+        // Event listeners
+        sendBtn.addEventListener("click", sendMessage);
+        
+        messageInput.addEventListener("keypress", function(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Auto-resize textarea as user types
+        messageInput.addEventListener("input", function() {
+            this.style.height = "auto";
+            this.style.height = Math.min(this.scrollHeight, 100) + "px";
+        });
+        
+        optionsBtn.addEventListener("click", function() {
+            optionsMenu.classList.toggle('active');
+        });
+        
+        toggleListeningBtn.addEventListener("click", toggleListening);
+        showProtocolBtn.addEventListener("click", toggleProtocolSelector);
+        toggleWaveformBtn.addEventListener("click", toggleWaveform);
+        clearMessagesBtn.addEventListener("click", clearMessages);
+        
+        // Close options menu when clicking outside
+        document.addEventListener("click", function(e) {
+            if (!optionsBtn.contains(e.target) && !optionsMenu.contains(e.target)) {
+                optionsMenu.classList.remove('active');
+            }
+        });
+        
+        // Fix waveform canvas size on window resize
+        window.addEventListener('resize', function() {
+            if (waveformCanvas && waveformContainer.classList.contains('active')) {
+                waveformCanvas.width = waveformCanvas.offsetWidth;
+                waveformCanvas.height = waveformCanvas.offsetHeight;
+            }
+        });
+    </script>
+</body>
+</html>
