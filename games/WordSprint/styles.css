@@ -1,94 +1,157 @@
-/* Reset and basic styling */
+/* 1. Universal Reset & Base Font Stack */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Courier New", Courier, monospace;
+  font-family: "Courier New", Courier, monospace; /* Retro-futuristic vibe */
 }
 
-/* Body styling - retro-futuristic background */
+/* 2. Body - Dark Background, Light Text, Centered Content */
 body {
-  background: #1c1c1c; /* Dark background */
-  color: #f0f0f0;     /* Light text */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  background: #0d0d0d; /* Very dark gray */
+  color: #f0f0f0;
+  display: flex;              /* Enables flex layout */
+  flex-direction: column;     /* Stack content vertically */
+  justify-content: center;    /* Center content vertically */
+  align-items: center;        /* Center content horizontally */
+  min-height: 100vh;          /* Fill full viewport height */
 }
 
-/* Container for the game elements */
+/* 3. Container for the Game Elements - Mobile Friendly Width */
 .game-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 320px;
+  width: 95%;
+  max-width: 360px; /* Optimized for mobile phone widths */
   text-align: center;
+  padding: 1.5rem 1rem;
 }
 
-/* Title */
+/* 4. Title */
 .game-title {
-  margin-bottom: 1rem;
-  font-size: 2rem;
+  margin-bottom: 1.2rem;
+  font-size: 1.8rem;
+  color: #ff7f50; /* Coral accent */
+  text-shadow: 0 0 6px rgba(255,127,80,0.6); /* Neon-like glow */
   letter-spacing: 2px;
-  color: #00ffff; /* Neon accent color */
 }
 
-/* Scrambled letters container */
+/* 5. Brief Instructions */
+.instructions {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-bottom: 1.5rem;
+  color: #dddddd;
+  padding: 0 0.5rem;
+  opacity: 0.9;
+}
+
+/* 6. Scrambled Letters Container */
 .letters-container {
   display: flex;
   justify-content: center;
-  margin: 1rem 0;
-  font-size: 1.5rem;
+  gap: 0.5rem;
+  margin: 1rem 0 1.5rem 0;
+  font-size: 1.6rem;
   flex-wrap: wrap;
 }
 
-/* Input box for answers */
+/* 7. Answer Input */
 .answer-input {
-  width: 80%;
+  width: 100%;
   font-size: 1rem;
-  padding: 0.5rem;
+  padding: 0.75rem;
   text-align: center;
-  margin-bottom: 1rem;
-  border: 2px solid #333;
-  background-color: #2a2a2a;
+  margin-bottom: 1.25rem;
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+  background-color: #1c1c1c;
   color: #f0f0f0;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* Timer display */
+.answer-input:focus {
+  outline: none;
+  border-color: #ff7f50;
+  box-shadow: 0 0 6px rgba(255,127,80,0.5);
+}
+
+/* 8. Timer Display */
 .timer {
   margin-bottom: 1rem;
-  font-size: 1.2rem;
-  color: #ff00ff; /* Another neon accent */
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ff7f50;
+  text-shadow: 0 0 4px rgba(255,127,80,0.6);
 }
 
-/* Score container */
+/* 9. Score Container */
 .score-container {
   margin-bottom: 1rem;
   display: flex;
-  justify-content: space-around;
-  width: 80%;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.score-label, .streak-label {
-  font-size: 1rem;
+.score-label,
+.streak-label {
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
-/* Buttons */
+/* 10. Buttons */
 .button {
-  background-color: #2a2a2a;
-  color: #ffffff;
-  border: 2px solid #ffffff;
-  padding: 0.5rem 1rem;
+  background-color: transparent;
+  color: #f0f0f0;
+  border: 2px solid #ff7f50;
+  border-radius: 4px;
+  padding: 0.6rem 1.2rem;
   margin: 0.25rem;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-size: 1rem;
+  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
 }
 
 .button:hover {
-  background-color: #444444;
+  background-color: #ff7f50;
+  color: #0d0d0d;
+  box-shadow: 0 0 6px rgba(255,127,80,0.5);
 }
 
-/* Hidden utility class */
+/* Correct Answer Display */
+.correct-word {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  color: #ff4b4b; /* Reddish highlight for correct word */
+}
+
+/* Hide Elements */
 .hidden {
   display: none;
+}
+
+/* 11. Footer - Just below the main container */
+footer {
+  margin-top: 1.5rem; /* Space above footer */
+  font-size: 0.8rem;
+  color: #888888;
+  text-align: center;
+}
+
+/* Example Media Query for Very Small Screens */
+@media screen and (max-width: 400px) {
+  .game-title {
+    font-size: 1.5rem;
+  }
+  .letters-container {
+    font-size: 1.4rem;
+  }
+  .answer-input {
+    font-size: 0.95rem;
+  }
+  .button {
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+  }
 }
