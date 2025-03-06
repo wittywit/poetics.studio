@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Word Sprint</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="game-container">
+    <h1 class="game-title">Word Sprint</h1>
+    
+    <!-- Scrambled letters -->
+    <div id="scrambledLetters" class="letters-container"></div>
+
+    <!-- Input for typed answers -->
+    <input
+      type="text"
+      id="answerInput"
+      class="answer-input"
+      placeholder="Type your answer..."
+    />
+
+    <!-- Timer -->
+    <div id="timer" class="timer"></div>
+    
+    <!-- Score and streak -->
+    <div class="score-container">
+      <span id="score" class="score-label">Score: 0</span>
+      <span id="streak" class="streak-label">Streak: 0</span>
+    </div>
+
+    <!-- Start and Retry buttons -->
+    <button id="startBtn" class="button">Start Game</button>
+    <button id="retryBtn" class="button hidden">Retry</button>
+
+    <!-- Correct Word display (shown if time runs out or guess is wrong) -->
+    <div id="correctAnswer" class="correct-word hidden"></div>
+  </div>
+
+  <footer>
+  designed by studio poetics copyright 2025
+</footer>
+
+
+  <script src="script.js"></script>
+</body>
+</html>

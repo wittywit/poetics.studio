@@ -1,0 +1,147 @@
+/* 1. Universal Reset & Base Font Stack */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Courier New", Courier, monospace; /* Retro-futuristic vibe */
+}
+
+/* 2. Body - Dark Background, Light Text, Centered Content */
+body {
+  background: #0d0d0d; /* Very dark gray */
+  color: #f0f0f0;
+  display: flex;              /* Enables flex layout */
+  flex-direction: column;     /* Stack content vertically */
+  justify-content: center;    /* Center content vertically */
+  align-items: center;        /* Center content horizontally */
+  min-height: 100vh;          /* Fill full viewport height */
+}
+
+/* 3. Container for the Game Elements - Mobile Friendly Width */
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 95%;
+  max-width: 360px; /* Optimized for mobile phone widths */
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+
+/* 4. Title - Subtle Neon Glow on Coral Accent */
+.game-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: #ff7f50; /* Coral accent */
+  text-shadow: 0 0 6px rgba(255,127,80,0.6); /* Neon-like glow */
+  letter-spacing: 2px;
+}
+
+/* 5. Scrambled Letters Container */
+.letters-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem 0 1.5rem 0;
+  font-size: 1.6rem;
+  flex-wrap: wrap;
+}
+
+/* 6. Answer Input */
+.answer-input {
+  width: 100%;
+  font-size: 1rem;
+  padding: 0.75rem;
+  text-align: center;
+  margin-bottom: 1.25rem;
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+  background-color: #1c1c1c;
+  color: #f0f0f0;
+  transition: border-color 0.2s;
+}
+
+.answer-input:focus {
+  outline: none;
+  border-color: #ff7f50;
+  box-shadow: 0 0 6px rgba(255,127,80,0.5);
+}
+
+/* 7. Timer Display */
+.timer {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ff7f50;
+  text-shadow: 0 0 4px rgba(255,127,80,0.6);
+}
+
+/* 8. Score Container */
+.score-container {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.score-label,
+.streak-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* 9. Buttons */
+.button {
+  background-color: transparent;
+  color: #f0f0f0;
+  border: 2px solid #ff7f50;
+  border-radius: 4px;
+  padding: 0.6rem 1.2rem;
+  margin: 0.25rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.button:hover {
+  background-color: #ff7f50;
+  color: #0d0d0d;
+  box-shadow: 0 0 6px rgba(255,127,80,0.5);
+}
+
+/* 10. Correct Answer Display */
+.correct-word {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  color: #ff4b4b; /* Reddish highlight for correct word */
+}
+
+/* 11. Footer - Just below the main container */
+footer {
+  margin-top: 1.5rem; /* Space above footer */
+  font-size: 0.8rem;
+  color: #888888;
+  text-align: center;
+}
+
+/* Hide Elements */
+.hidden {
+  display: none;
+}
+
+/* Example Media Query for Very Small Screens */
+@media screen and (max-width: 400px) {
+  .game-title {
+    font-size: 1.5rem;
+  }
+  .letters-container {
+    font-size: 1.4rem;
+  }
+  .answer-input {
+    font-size: 0.95rem;
+  }
+  .button {
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+  }
+}
