@@ -1,20 +1,15 @@
 /*******************************************************
  * Word Sprint (Anagram Challenge)
  * 
- * NEW Features:
- * 1. Loads words from a JSON array (≥ 3 letters).
- * 2. Segments them by length:
- *    - Easy3_4:    3-4 letters
- *    - Medium5_6:  5-6 letters
- *    - Hard7_8:    7-8 letters
- *    - Insane9Up:  9+ letters
- * 3. Starts each round with 15 seconds until the 
- *    player has solved 10 words, then 10 seconds.
- * 4. Shows correct answer if guess is wrong or time out, 
- *    then automatically goes to next round.
+ * - Accepts any valid anagram of the chosen word,
+ *   as long as it's in the dictionary.
+ * - Difficulty ramps from short words (3-4 letters),
+ *   medium (5-6), hard (7-8), to insane (9+).
+ * - Timer starts at 15s, drops to 10s after 10 correct words.
+ * - Shows correct answer if guess is wrong or time runs out.
  *******************************************************/
 
-/* ------------ Selectors ------------ */
+/* ------------ DOM Selectors ------------ */
 const scrambledLetters = document.getElementById("scrambledLetters");
 const answerInput      = document.getElementById("answerInput");
 const timerDisplay     = document.getElementById("timer");
@@ -24,47 +19,53 @@ const startBtn         = document.getElementById("startBtn");
 const retryBtn         = document.getElementById("retryBtn");
 const correctAnswerDiv = document.getElementById("correctAnswer");
 
-/* ------------ Game Variables ------------ */
+/* ------------ Word Buckets ------------ */
 let wordsEasy3_4    = [];
 let wordsMed5_6     = [];
 let wordsHard7_8    = [];
 let wordsInsane9Up  = [];
 
+/* ------------ Master Dictionary Set ------------ */
+let dictionarySet = new Set(); // Will store all valid words for membership checks
+
+/* ------------ Game Variables ------------ */
 let currentWord      = "";
 let timer            = null;
-let timeRemaining    = 15;  // Start with 15 seconds
-let baseTime         = 15;  // This will switch to 10 after 10 correct words
+let timeRemaining    = 15; // Start with 15s
+let baseTime         = 15; // Switches to 10 after 10 correct solutions
 let score            = 0;
 let streak           = 0;
 let isGameActive     = false;
-let solvedWordsCount = 0;   // Tracks how many words have been solved correctly
+let solvedWordsCount = 0; // How many words the player solved correctly so far
 
-/* ------------ Load Word List (Async) ------------ */
+/**
+ * Load the dictionary, segment by difficulty, and build a Set for membership checks.
+ */
 async function loadWords() {
   try {
-    // If your JSON file is named words_filtered.json, update the path as needed:
+    // Adjust path/filename as needed
     const response = await fetch("words_filtered.json");
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    // 'data' should be a JSON array of strings, e.g. ["cat","apple","banana", ...]
-    const data = await response.json();
+    const data = await response.json(); // array of words (3-9 letters or whichever you have)
 
-    // Sort words into buckets by length
+    // Store all words in a Set for quick membership checks
+    dictionarySet = new Set(data);
+
+    // Sort words into difficulty buckets by length
     data.forEach(word => {
       const w = word.trim().toLowerCase();
       const len = w.length;
-      if (len >= 3) {
-        if (len <= 4) {
-          wordsEasy3_4.push(w);
-        } else if (len <= 6) {
-          wordsMed5_6.push(w);
-        } else if (len <= 8) {
-          wordsHard7_8.push(w);
-        } else {
-          wordsInsane9Up.push(w);
-        }
+      if (len >= 3 && len <= 4) {
+        wordsEasy3_4.push(w);
+      } else if (len <= 6) {
+        wordsMed5_6.push(w);
+      } else if (len <= 8) {
+        wordsHard7_8.push(w);
+      } else {
+        wordsInsane9Up.push(w);
       }
     });
 
@@ -73,26 +74,23 @@ async function loadWords() {
     console.log("Hard (7-8):", wordsHard7_8.length);
     console.log("Insane (9+):", wordsInsane9Up.length);
 
-    // Enable the Start button once words are loaded
+    // Enable the Start button once dictionary is loaded
     startBtn.disabled = false;
   } catch (error) {
     console.error("Failed to load words:", error);
   }
 }
 
-/* ------------ Difficulty Selection ------------ */
 /**
- * Picks a new word from the correct "bucket" based on how many 
- * correct words the user has solved so far.
+ * Pick a new word from the correct difficulty bucket based on solvedWordsCount
  */
 function pickNewWord() {
-  // Example progression:
-  //   solvedWordsCount 0-4  => Easy (3-4 letters)
-  //   solvedWordsCount 5-9  => Medium (5-6 letters)
-  //   solvedWordsCount 10-14 => Hard (7-8 letters)
-  //   solvedWordsCount 15+  => Insane (9+ letters)
+  // Difficulty progression example:
+  //   0-4   => Easy3_4
+  //   5-9   => Med5_6
+  //   10-14 => Hard7_8
+  //   15+   => Insane9Up
   let bucket = [];
-
   if (solvedWordsCount < 5) {
     bucket = wordsEasy3_4;
   } else if (solvedWordsCount < 10) {
@@ -103,7 +101,7 @@ function pickNewWord() {
     bucket = wordsInsane9Up;
   }
 
-  // If the chosen bucket is empty (unlikely with a large list), fallback to any non-empty bucket
+  // Fallback if bucket is empty (unlikely if you have many words)
   if (bucket.length === 0) {
     const allBuckets = [wordsEasy3_4, wordsMed5_6, wordsHard7_8, wordsInsane9Up];
     const nonEmpty = allBuckets.filter(b => b.length > 0);
@@ -115,12 +113,12 @@ function pickNewWord() {
 }
 
 /**
- * Shuffle letters of a word
+ * Shuffle the letters of the puzzle word
  */
 function shuffleWord(word) {
   const arr = word.split("");
   for (let i = arr.length - 1; i > 0; i--) {
-    const j  = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr.join("");
@@ -131,18 +129,18 @@ function shuffleWord(word) {
  */
 function displayScrambledWord() {
   let scrambled = shuffleWord(currentWord);
-
-  // If it accidentally matches the original, reshuffle
+  // If accidentally the same as original, reshuffle
   while (scrambled === currentWord) {
     scrambled = shuffleWord(currentWord);
   }
-
   scrambledLetters.textContent = scrambled.split("").join(" ");
 }
 
-/* ------------ Game Flow ------------ */
+/**
+ * Start the game
+ */
 function startGame() {
-  // Make sure we have at least some words loaded
+  // Ensure we have words loaded
   if (
     wordsEasy3_4.length === 0 &&
     wordsMed5_6.length === 0 &&
@@ -153,11 +151,11 @@ function startGame() {
     return;
   }
 
-  // Reset variables
+  // Reset game variables
   score            = 0;
   streak           = 0;
   solvedWordsCount = 0;
-  baseTime         = 15;  // Start with 15s
+  baseTime         = 15;
   timeRemaining    = baseTime;
   isGameActive     = true;
 
@@ -179,54 +177,46 @@ function startGame() {
 }
 
 /**
- * Main countdown logic
+ * Timer countdown
  */
 function countdown() {
   timeRemaining--;
   timerDisplay.textContent = `Time: ${timeRemaining}`;
   if (timeRemaining <= 0) {
-    // Time ran out => show correct word, then next
     failRound("Time's up!");
   }
 }
 
 /**
- * Called when user fails to guess or guesses incorrectly
- * 1. Show correct answer
- * 2. Reset streak
- * 3. Move to next word after short delay
+ * Show correct answer, reset streak, move to next word
  */
 function failRound(reason) {
   clearInterval(timer);
   timer = null;
 
-  // Show correct answer
   correctAnswerDiv.textContent = `Correct word was: ${currentWord}`;
   correctAnswerDiv.classList.remove("hidden");
 
-  // Reset streak
   streak = 0;
   updateScoreDisplay();
 
-  // After 2 seconds, load next word
+  // After short delay, continue
   setTimeout(() => {
     nextRound();
   }, 2000);
 }
 
 /**
- * Move to the next word
+ * Move to the next round (pick new puzzle word, reset time, etc.)
  */
 function nextRound() {
   correctAnswerDiv.classList.add("hidden");
   pickNewWord();
   displayScrambledWord();
 
-  // If solved >= 10 words, reduce time from 15 to 10
   if (solvedWordsCount >= 10) {
-    baseTime = 10;
+    baseTime = 10; // reduce time after 10 correct solves
   }
-
   timeRemaining = baseTime;
   timerDisplay.textContent = `Time: ${timeRemaining}`;
 
@@ -237,13 +227,15 @@ function nextRound() {
 }
 
 /**
- * Check player's guess (on Enter)
+ * Check if userGuess is a valid anagram of the puzzle word
+ * and is in the dictionary
  */
 function checkAnswer() {
   if (!isGameActive) return;
 
   const userGuess = answerInput.value.trim().toLowerCase();
-  if (userGuess === currentWord) {
+
+  if (isValidAnagram(userGuess, currentWord) && dictionarySet.has(userGuess)) {
     // Correct guess
     clearInterval(timer);
     timer = null;
@@ -253,21 +245,30 @@ function checkAnswer() {
     solvedWordsCount++;
     updateScoreDisplay();
 
-    // If solved >= 10 words, reduce baseTime
     if (solvedWordsCount >= 10) {
-      baseTime = 10;
+      baseTime = 10; // reduce base time after 10 correct words
     }
 
-    // Move on to the next word
     nextRound();
   } else {
-    // Incorrect => show correct answer, then next
+    // Incorrect => show correct, then next
     failRound("Incorrect guess");
   }
 }
 
 /**
- * Update score and streak
+ * Helper function: checks if guess is an anagram of target
+ * by comparing sorted letters
+ */
+function isValidAnagram(guess, target) {
+  if (guess.length !== target.length) return false;
+  const sortA = guess.split("").sort().join("");
+  const sortB = target.split("").sort().join("");
+  return sortA === sortB;
+}
+
+/**
+ * Update score + streak UI
  */
 function updateScoreDisplay() {
   scoreDisplay.textContent  = `Score: ${score}`;
@@ -275,7 +276,7 @@ function updateScoreDisplay() {
 }
 
 /**
- * End the game (unused in this continuous-play setup).
+ * End the game (unused in this continuous-play approach)
  */
 function endGame() {
   isGameActive = false;
@@ -297,8 +298,8 @@ answerInput.addEventListener("keyup", function (e) {
   }
 });
 
-// Initially disable Start button until words are loaded
+// Disable Start until words load
 startBtn.disabled = true;
 
-// Load the word list as soon as the script executes
+// Load words on script execution
 loadWords();
