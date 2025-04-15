@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (form) {
     form.addEventListener("submit", (event) => {
       // Replace this URL with your actual Mailchimp form action URL when you have it
-      const mailchimpUrl = "//REPLACE-WITH-YOUR-MAILCHIMP-FORM-ACTION-URL"
+      const mailchimpUrl = "https://studio.us7.list-manage.com/subscribe/post?u=0bad0ecde19c26e773298754f&amp;id=5f4c822fc8&amp;f_id=001a1be1f0"
 
       // For now, we'll just prevent the default form submission for demonstration
       if (!form.action || form.action === "javascript:void(0)" || form.action === "#") {
