@@ -345,4 +345,5 @@
 
 div.tp-dfwv {
   position: fixed;
+   visibility: hidden;
 }
