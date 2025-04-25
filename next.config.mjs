@@ -10,8 +10,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: '/poetics.studio',
-  assetPrefix: '/poetics.studio/',
   trailingSlash: true,
 }
 
