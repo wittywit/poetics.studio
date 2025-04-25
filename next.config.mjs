@@ -10,8 +10,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: process.env.NODE_ENV === 'production' ? '/studio-poetics' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/studio-poetics/' : '',
+  basePath: '/poetics.studio',
+  assetPrefix: '/poetics.studio/',
+  trailingSlash: true,
 }
 
 export default nextConfig
