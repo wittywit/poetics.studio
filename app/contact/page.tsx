@@ -1,11 +1,12 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
-import { Mail, Phone, MapPin, Send } from "lucide-react"
+import { Mail, MapPin, Send } from "lucide-react"
+import contactContent from "@/content/contact.json"
 
 export default function ContactPage() {
+  const { hero, contactInfo, form, faq } = contactContent
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -49,9 +50,9 @@ export default function ContactPage() {
       <section className="py-16 md:py-24">
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center space-y-6">
-            <h1 className="heading-xl text-charcoal">Get in Touch</h1>
+            <h1 className="heading-xl text-charcoal">{hero.title}</h1>
             <p className="text-xl text-charcoal/80 leading-relaxed">
-              Have a project in mind? We'd love to hear from you. Fill out the form below or reach out directly.
+              {hero.description}
             </p>
           </div>
         </div>
@@ -72,25 +73,10 @@ export default function ContactPage() {
                 <div>
                   <h3 className="text-lg font-medium mb-1">Email Us</h3>
                   <a
-                    href="mailto:hello@studiopoetics.com"
+                    href={`mailto:${contactInfo.email}`}
                     className="text-charcoal/80 hover:text-coral-dark transition-colors hover-trigger"
                   >
-                    hello@studiopoetics.com
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="h-12 w-12 bg-coral-light rounded-full flex items-center justify-center flex-shrink-0">
-                  <Phone className="text-coral-dark" size={20} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium mb-1">Call Us</h3>
-                  <a
-                    href="tel:+11234567890"
-                    className="text-charcoal/80 hover:text-coral-dark transition-colors hover-trigger"
-                  >
-                    +1 (123) 456-7890
+                    {contactInfo.email}
                   </a>
                 </div>
               </div>
@@ -100,37 +86,30 @@ export default function ContactPage() {
                   <MapPin className="text-coral-dark" size={20} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium mb-1">Visit Us</h3>
+                  <h3 className="text-lg font-medium mb-1">Location</h3>
                   <address className="not-italic text-charcoal/80">
-                    123 Creativity Lane
-                    <br />
-                    Design District, CA 90210
+                    {contactInfo.location}
                   </address>
                 </div>
               </div>
 
               <div className="pt-8">
-                <h3 className="text-lg font-medium mb-4">Office Hours</h3>
+                <h3 className="text-lg font-medium mb-4">Available For</h3>
                 <ul className="space-y-2 text-charcoal/80">
-                  <li className="flex justify-between">
-                    <span>Monday - Friday:</span>
-                    <span>9:00 AM - 6:00 PM</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Saturday:</span>
-                    <span>10:00 AM - 4:00 PM</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Sunday:</span>
-                    <span>Closed</span>
-                  </li>
+                  {contactInfo.availableFor.map((item, index) => (
+                    <li key={index} className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-coral-dark rounded-full"></span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
 
             {/* Contact Form */}
             <div className="bg-cream rounded-2xl p-8 shadow-md">
-              <h2 className="heading-md mb-6">Send Us a Message</h2>
+              <h2 className="heading-md mb-6">{form.title}</h2>
+              <p className="text-charcoal/80 mb-6">{form.description}</p>
 
               {submitted ? (
                 <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg p-4 mb-6">
@@ -139,70 +118,36 @@ export default function ContactPage() {
               ) : null}
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-charcoal mb-1">
-                    Your Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 rounded-lg border border-charcoal/20 focus:border-coral-dark focus:ring-1 focus:ring-coral-dark outline-none transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-charcoal mb-1">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 rounded-lg border border-charcoal/20 focus:border-coral-dark focus:ring-1 focus:ring-coral-dark outline-none transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-charcoal mb-1">
-                    Subject
-                  </label>
-                  <select
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 rounded-lg border border-charcoal/20 focus:border-coral-dark focus:ring-1 focus:ring-coral-dark outline-none transition-colors"
-                  >
-                    <option value="">Select a subject</option>
-                    <option value="Game Development">Game Development</option>
-                    <option value="Hardware Design">Hardware Design</option>
-                    <option value="Design Consultancy">Design Consultancy</option>
-                    <option value="General Inquiry">General Inquiry</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-charcoal mb-1">
-                    Your Message
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    rows={5}
-                    className="w-full px-4 py-3 rounded-lg border border-charcoal/20 focus:border-coral-dark focus:ring-1 focus:ring-coral-dark outline-none transition-colors"
-                  ></textarea>
-                </div>
+                {form.fields.map((field) => (
+                  <div key={field.id}>
+                    <label htmlFor={field.id} className="block text-sm font-medium text-charcoal mb-1">
+                      {field.label}
+                    </label>
+                    {field.type === "textarea" ? (
+                      <textarea
+                        id={field.id}
+                        name={field.id}
+                        value={formData[field.id as keyof typeof formData]}
+                        onChange={handleChange}
+                        required={field.required}
+                        placeholder={field.placeholder}
+                        rows={5}
+                        className="w-full px-4 py-3 rounded-lg border border-charcoal/20 focus:border-coral-dark focus:ring-1 focus:ring-coral-dark outline-none transition-colors"
+                      />
+                    ) : (
+                      <input
+                        type={field.type}
+                        id={field.id}
+                        name={field.id}
+                        value={formData[field.id as keyof typeof formData]}
+                        onChange={handleChange}
+                        required={field.required}
+                        placeholder={field.placeholder}
+                        className="w-full px-4 py-3 rounded-lg border border-charcoal/20 focus:border-coral-dark focus:ring-1 focus:ring-coral-dark outline-none transition-colors"
+                      />
+                    )}
+                  </div>
+                ))}
 
                 <button
                   type="submit"
@@ -245,15 +190,17 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Map Section */}
+      {/* FAQ Section */}
       <section className="py-16">
         <div className="container-custom">
-          <h2 className="heading-lg text-center mb-12">Find Us</h2>
-          <div className="rounded-2xl overflow-hidden shadow-lg h-[400px] bg-gray-200 flex items-center justify-center">
-            <div className="text-center p-8">
-              <p className="text-lg text-charcoal/70 mb-4">Map placeholder</p>
-              <p className="text-charcoal/80">123 Creativity Lane, Design District, CA 90210</p>
-            </div>
+          <h2 className="heading-lg text-center mb-12">{faq.title}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {faq.questions.map((item, index) => (
+              <div key={index} className="bg-cream rounded-2xl p-8 shadow-sm">
+                <h3 className="text-lg font-medium mb-3">{item.question}</h3>
+                <p className="text-charcoal/80">{item.answer}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
