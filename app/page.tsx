@@ -1,6 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
+import heroContent from "@/content/hero.json"
 
 export default function Home() {
   return (
@@ -10,24 +11,25 @@ export default function Home() {
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <h1 className="heading-xl text-charcoal">
-              <span className="text-coral-dark">Merging</span> tradition with technology
+              {heroContent.title.start} <span className="text-coral-dark">{heroContent.title.highlight}</span>, {heroContent.title.end}
             </h1>
             <p className="text-xl md:text-2xl text-charcoal/80 leading-relaxed">
-              We create cozy games, design custom hardware, and help brands blend the old with the new.
+              {heroContent.description}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-              <Link
-                href="/projects"
-                className="bg-[#FA8072] hover:bg-[#F06A5C] text-white px-6 py-3 rounded-full transition-all duration-300 hover-trigger"
-              >
-                View Our Work
-              </Link>
-              <Link
-                href="/contact"
-                className="border-2 border-[#FA8072] text-[#FA8072] hover:bg-[#FA8072]/10 px-6 py-3 rounded-full transition-all duration-300 hover-trigger"
-              >
-                Get in Touch
-              </Link>
+              {heroContent.buttons.map((button, index) => (
+                <Link
+                  key={index}
+                  href={button.link}
+                  className={`${
+                    index === 0
+                      ? "bg-[#FA8072] hover:bg-[#F06A5C] text-white"
+                      : "border-2 border-[#FA8072] text-[#FA8072] hover:bg-[#FA8072]/10"
+                  } px-6 py-3 rounded-full transition-all duration-300 hover-trigger`}
+                >
+                  {button.text}
+                </Link>
+              ))}
             </div>
           </div>
         </div>

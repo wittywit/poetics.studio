@@ -1,0 +1,18 @@
+{
+  "title": {
+    "start": "Studio Poetics:",
+    "highlight": "Designing Meaning",
+    "end": "Embracing Many Worlds."
+  },
+  "description": "We're a sense-making studio crafting consultancy, experimental hardware, and games, all while uncovering the Poetics of Ordinary.",
+  "buttons": [
+    {
+      "text": "View Our Work",
+      "link": "/projects"
+    },
+    {
+      "text": "Get in Touch",
+      "link": "/contact"
+    }
+  ]
+} 

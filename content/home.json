@@ -1,0 +1,67 @@
+{
+  "hero": {
+    "title": {
+      "start": "Studio Poetics:",
+      "highlight": "Designing Meaning",
+      "end": "Embracing Many Worlds."
+    },
+    "description": "We're a sense-making studio crafting consultancy, experimental hardware, and games, all while uncovering the Poetics of Ordinary.",
+    "buttons": [
+      {
+        "text": "View Our Work",
+        "link": "/projects"
+      },
+      {
+        "text": "Get in Touch",
+        "link": "/contact"
+      }
+    ]
+  },
+  "categories": {
+    "title": "What We Do",
+    "items": [
+      {
+        "title": "Cozy Games",
+        "description": "We design and develop calm, relaxing games that provide a cozy escape from the everyday hustle.",
+        "link": "/projects?category=games",
+        "linkText": "Explore Games",
+        "icon": "game"
+      },
+      {
+        "title": "Custom Hardware",
+        "description": "We create bespoke hardware solutions that blend functionality with beautiful, tactile design.",
+        "link": "/projects?category=hardware",
+        "linkText": "View Hardware",
+        "icon": "hardware"
+      },
+      {
+        "title": "Design Consultancy",
+        "description": "We help brands merge traditional craftsmanship with cutting-edge technology for unique experiences.",
+        "link": "/projects?category=consultancy",
+        "linkText": "Learn More",
+        "icon": "design"
+      }
+    ]
+  },
+  "featuredProject": {
+    "label": "Featured Project",
+    "title": "Harmony Controller",
+    "description": "A custom game controller that combines traditional woodworking with modern haptic technology, creating a warm, tactile gaming experience that connects players to their virtual worlds in a more meaningful way.",
+    "image": "/placeholder.svg?height=600&width=600",
+    "link": "/projects/harmony-controller",
+    "linkText": "View Case Study"
+  },
+  "testimonial": {
+    "quote": "Studio Poetics helped us create a gaming experience that feels like a warm hug. Their ability to blend nostalgic elements with innovative technology resulted in our most successful game launch to date.",
+    "author": "Jane Cooper",
+    "role": "Creative Director, Cozy Games Inc."
+  },
+  "cta": {
+    "title": "Ready to bring your ideas to life?",
+    "description": "Let's create something beautiful together. Reach out to discuss your project.",
+    "button": {
+      "text": "Get in Touch",
+      "link": "/contact"
+    }
+  }
+} 
