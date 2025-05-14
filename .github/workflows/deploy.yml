@@ -2,75 +2,40 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: [ main ]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: '20'
-
-      - uses: pnpm/action-setup@v2
-        name: Install pnpm
-        with:
-          version: 8
-          run_install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm install
-
+          node-version: '18'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
       - name: Build
-        run: pnpm build
         env:
-          NODE_ENV: production
-      
-      - name: Copy CNAME file
-        run: cp public/CNAME out/
-      
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './out'
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
+          GITHUB_ID: ${{ secrets.GITHUB_ID }}
+          GITHUB_SECRET: ${{ secrets.GITHUB_SECRET }}
+          CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
+          CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
+        run: npm run build
+        
+      - name: Configure for GitHub Pages
+        run: |
+          touch out/.nojekyll
+          echo "poetics.studio" > out/CNAME
+        
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4 
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: out
+          clean: true
